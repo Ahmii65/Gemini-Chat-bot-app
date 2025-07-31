@@ -1,35 +1,102 @@
+import { GeminiResponse, Message } from "@/types/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  StatusBar,
   Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-type Message = {
-  id: string;
-  text: string;
-};
+import { myTheme } from "../hooks/useColorScheme";
 
 export default function ChatScreen() {
+  const flatListRef = useRef<FlatList>(null);
+  const Scheme = myTheme();
+  const colorScheme = Scheme === "dark";
   const [input, setInput] = useState<string>("");
   const [Messages, setMessages] = useState<Message[]>([]);
-  const sendButton = () => {
+
+  // when user press Send Button
+  const sendButton = async () => {
     if (input.trim() === "") return;
     const newMessage: Message = {
       id: Date.now().toString(),
       text: input,
+      sender: "user",
     };
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => {
+      const updated = [...prev, newMessage];
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+      return updated;
+    });
+    const userInput = input;
     setInput("");
+
+    const aiReply = await apicall(userInput);
+    if (aiReply) {
+      const botMessages: Message = {
+        id: Date.now().toString(),
+        text: aiReply,
+        sender: "bot",
+      };
+      setMessages((prev) => {
+        const updated = [...prev, botMessages];
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+        return updated;
+      });
+    }
   };
+  //  Calling Gemini Api
+  const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+  const apicall = async (input: string) => {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+      const result = await fetch(url, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: input }],
+            },
+          ],
+          generationConfig: {
+            thinkingConfig: {
+              thinkingBudget: 100,
+            },
+          },
+        }),
+      });
+      const data: GeminiResponse = await result.json();
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      return reply || null;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
-    <View style={{ flex: 1, paddingVertical: 40 }}>
+    <View
+      style={{
+        flex: 1,
+        paddingVertical: 40,
+        backgroundColor: colorScheme ? "black" : "white",
+      }}
+    >
+      <StatusBar barStyle={colorScheme ? "light-content" : "dark-content"} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "android" ? "height" : "padding"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
@@ -37,58 +104,60 @@ export default function ChatScreen() {
           flex: 1,
         }}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1 }}>
-            <Text
-              style={{
-                fontSize: 15,
-                padding: 10,
-                fontWeight: "600",
-                textAlign: "center",
-              }}
-            >
-              Chat With Gemini
-            </Text>
-            <View
-              style={{
-                flex: 1,
-              }}
-            >
-              {Messages.length > 0 ? (
-                <FlatList<Message>
-                  data={Messages}
-                  keyExtractor={(item) => item.id}
-                  keyboardShouldPersistTaps="handled"
-                  contentContainerStyle={{
-                    flexGrow: 1,
-                    justifyContent: "flex-end",
-                    padding: 5,
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: 15,
+              padding: 10,
+              fontWeight: "600",
+              textAlign: "center",
+              color: colorScheme ? "white" : "black",
+            }}
+          >
+            Chat With Gemini
+          </Text>
+          <FlatList<Message>
+            data={Messages}
+            ref={flatListRef}
+            style={{ flex: 1 }}
+            keyExtractor={(item) => item.id}
+            keyboardShouldPersistTaps="always"
+            contentContainerStyle={{
+              flexGrow: 1,
+
+              justifyContent: "flex-end",
+              padding: 5,
+            }}
+            renderItem={({ item }) => (
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    padding: 15,
+                    maxWidth: "80%",
+                    margin: 5,
+                    backgroundColor: colorScheme ? "#333333" : "lightgray",
+                    borderColor: colorScheme ? "#333333" : "lightgray",
+                    alignSelf:
+                      item.sender === "user" ? "flex-end" : "flex-start",
                   }}
-                  renderItem={({ item }) => (
-                    <View
-                      style={{
-                        borderWidth: 1,
-                        borderRadius: 20,
-                        padding: 15,
-                        maxWidth: "80%",
-                        margin: 5,
-                        backgroundColor: "lightgray",
-                        borderColor: "lightgray",
-                        alignSelf: "flex-end",
-                      }}
-                    >
-                      <Text style={{ alignSelf: "flex-end", }}>
-                        {item.text}
-                      </Text>
-                    </View>
-                  )}
-                />
-              ) : (
-                null
-              )}
-            </View>
-          </View>
-        </TouchableWithoutFeedback>
+                >
+                  <Text
+                    style={{
+                      color: colorScheme ? "white" : "black",
+                      alignSelf:
+                        item.sender === "user" ? "flex-end" : "flex-start",
+                    }}
+                  >
+                    {item.text}
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            )}
+          />
+        </View>
+
         <View
           style={{
             marginLeft: 5,
@@ -98,7 +167,7 @@ export default function ChatScreen() {
         >
           <TextInput
             placeholder="Type your Message.."
-            placeholderTextColor="gray"
+            placeholderTextColor={colorScheme ? "white" : "black"}
             style={{
               borderWidth: 1,
               borderRadius: 30,
@@ -106,8 +175,9 @@ export default function ChatScreen() {
               paddingLeft: 20,
               width: "85%",
               height: 50,
-              backgroundColor: "lightgray",
-              borderColor: "lightgray",
+              backgroundColor: colorScheme ? "#333333" : "lightgray",
+              borderColor: colorScheme ? "#333333" : "lightgray",
+              color: colorScheme ? "white" : "black",
             }}
             onChangeText={(text) => setInput(text)}
             value={input}
