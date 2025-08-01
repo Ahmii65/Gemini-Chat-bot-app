@@ -13,6 +13,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { myTheme } from "../hooks/useColorScheme";
 
 export default function ChatScreen() {
@@ -41,6 +42,7 @@ export default function ChatScreen() {
     setInput("");
 
     const aiReply = await apicall(userInput);
+
     if (aiReply) {
       const botMessages: Message = {
         id: Date.now().toString(),
@@ -89,16 +91,19 @@ export default function ChatScreen() {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
-        paddingVertical: 40,
         backgroundColor: colorScheme ? "black" : "white",
+        elevation: 15,
       }}
     >
-      <StatusBar barStyle={colorScheme ? "light-content" : "dark-content"} />
+      <StatusBar
+        barStyle={colorScheme ? "light-content" : "dark-content"}
+        backgroundColor={colorScheme ? "black" : "white"}
+      />
       <KeyboardAvoidingView
-        behavior={Platform.OS === "android" ? "height" : "padding"}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
         style={{
           flex: 1,
@@ -194,6 +199,6 @@ export default function ChatScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
