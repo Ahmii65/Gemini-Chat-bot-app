@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import {
   FlatList,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   StatusBar,
   Text,
   TextInput,
@@ -93,14 +95,13 @@ export default function ChatScreen() {
       style={{
         flex: 1,
         backgroundColor: colorScheme ? "black" : "white",
-        elevation: 15,
       }}
     >
       <StatusBar
         barStyle={colorScheme ? "light-content" : "dark-content"}
         backgroundColor={colorScheme ? "black" : "white"}
       />
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 0 }}>
         <Text
           style={{
             fontSize: 15,
@@ -112,82 +113,90 @@ export default function ChatScreen() {
         >
           Chat With Gemini
         </Text>
-        <FlatList<Message>
-          data={Messages}
-          ref={flatListRef}
-          style={{ flex: 1 }}
-          keyExtractor={(item) => item.id}
-          keyboardShouldPersistTaps="always"
-          contentContainerStyle={{
-            flexGrow: 1,
-
-            justifyContent: "flex-end",
+      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS == "android" ? undefined : "padding"}
+        keyboardVerticalOffset={Platform.OS == "ios" ? 60 : 0}
+        style={{ flex: 1 }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ flex: 1 }}>
+            <FlatList<Message>
+              data={Messages}
+              ref={flatListRef}
+              style={{ flex: 1 }}
+              keyExtractor={(item) => item.id}
+              keyboardShouldPersistTaps="always"
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "flex-end",
+                padding: 5,
+              }}
+              renderItem={({ item }) => (
+                <TouchableWithoutFeedback onPress={() => {}}>
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderRadius: 20,
+                      padding: 15,
+                      maxWidth: "80%",
+                      margin: 5,
+                      backgroundColor: colorScheme ? "#333333" : "lightgray",
+                      borderColor: colorScheme ? "#333333" : "lightgray",
+                      alignSelf:
+                        item.sender === "user" ? "flex-end" : "flex-start",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: colorScheme ? "white" : "black",
+                        alignSelf:
+                          item.sender === "user" ? "flex-end" : "flex-start",
+                      }}
+                    >
+                      {item.text}
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              )}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        <View
+          style={{
+            flexDirection: "row",
             padding: 5,
           }}
-          renderItem={({ item }) => (
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View
-                style={{
-                  borderWidth: 1,
-                  borderRadius: 20,
-                  padding: 15,
-                  maxWidth: "80%",
-                  margin: 5,
-                  backgroundColor: colorScheme ? "#333333" : "lightgray",
-                  borderColor: colorScheme ? "#333333" : "lightgray",
-                  alignSelf: item.sender === "user" ? "flex-end" : "flex-start",
-                }}
-              >
-                <Text
-                  style={{
-                    color: colorScheme ? "white" : "black",
-                    alignSelf:
-                      item.sender === "user" ? "flex-end" : "flex-start",
-                  }}
-                >
-                  {item.text}
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
-          )}
-        />
-      </View>
-
-      <View
-        style={{
-          marginLeft: 5,
-          flexDirection: "row",
-          padding: 5,
-        }}
-      >
-        <TextInput
-          placeholder="Type your Message.."
-          placeholderTextColor={colorScheme ? "white" : "black"}
-          style={{
-            borderWidth: 1,
-            borderRadius: 30,
-            padding: 10,
-            paddingLeft: 20,
-            width: "85%",
-            height: 50,
-            backgroundColor: colorScheme ? "#333333" : "lightgray",
-            borderColor: colorScheme ? "#333333" : "lightgray",
-            color: colorScheme ? "white" : "black",
-          }}
-          onChangeText={(text) => setInput(text)}
-          value={input}
-        />
-        <TouchableOpacity
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            marginLeft: 10,
-          }}
-          onPress={sendButton}
         >
-          <FontAwesome name="send" size={28} color="gray" />
-        </TouchableOpacity>
-      </View>
+          <TextInput
+            placeholder="Type your Message.."
+            placeholderTextColor={colorScheme ? "white" : "black"}
+            style={{
+              borderWidth: 1,
+              borderRadius: 30,
+              padding: 10,
+              paddingLeft: 20,
+              width: "85%",
+              height: 50,
+              backgroundColor: colorScheme ? "#333333" : "lightgray",
+              borderColor: colorScheme ? "#333333" : "lightgray",
+              color: colorScheme ? "white" : "black",
+            }}
+            onChangeText={(text) => setInput(text)}
+            value={input}
+          />
+          <TouchableOpacity
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              marginLeft: 10,
+            }}
+            onPress={sendButton}
+          >
+            <FontAwesome name="send" size={28} color="gray" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

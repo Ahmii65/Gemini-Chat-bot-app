@@ -21,7 +21,14 @@ const index = () => {
         barStyle={colorScheme ? "light-content" : "dark-content"}
         backgroundColor={colorScheme ? "black" : "white"}
       />
-      <View style={{ alignItems: "center", marginTop: "20%" }}>
+      <View
+        style={{
+          alignItems: "center",
+          marginTop: 80,
+          flex: 0.2,
+          justifyContent: "center",
+        }}
+      >
         <Text style={{ color: "#3369FF", fontWeight: "600", fontSize: 25 }}>
           Your AI Assistant
         </Text>
@@ -39,10 +46,20 @@ const index = () => {
           Using Artificial Intelligence Assistant
         </Text>
       </View>
-      <View style={{ alignItems: "center", marginTop: "20%" }}>
-        <Image source={require("../assets/images/MainScreenLogo.png")} />
+      <View style={{ alignItems: "center", marginTop: 80, flex: 0.8 }}>
+        <Image
+          source={require("../assets/images/MainScreenLogo.png")}
+          resizeMode="cover"
+        />
       </View>
-      <View style={{ alignItems: "center", marginTop: "25%" }}>
+      <View
+        style={{
+          alignItems: "center",
+          flex: 0.3,
+          marginTop: 6,
+          justifyContent: "center",
+        }}
+      >
         <TouchableOpacity
           style={{
             borderWidth: 1,
@@ -52,7 +69,7 @@ const index = () => {
             borderColor: "#3369FF",
             width: "90%",
           }}
-          onPress={() => route.replace("/Chat")}
+          onPress={() => route.push("/Chat")}
         >
           <View
             style={{ justifyContent: "space-between", flexDirection: "row" }}
