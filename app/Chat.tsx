@@ -1,6 +1,7 @@
 import { GeminiResponse, Message } from "@/types/types";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useRef, useState } from "react";
+import { heightPercentageToDP as hp} from 'react-native-responsive-screen'
 import {
   FlatList,
   Keyboard,
@@ -95,32 +96,20 @@ export default function ChatScreen() {
       style={{
         flex: 1,
         backgroundColor: colorScheme ? "black" : "white",
+        marginTop:-30
       }}
     >
       <StatusBar
         barStyle={colorScheme ? "light-content" : "dark-content"}
         backgroundColor={colorScheme ? "black" : "white"}
       />
-      <View style={{ flex: 0 }}>
-        <Text
-          style={{
-            fontSize: 15,
-            padding: 10,
-            fontWeight: "600",
-            textAlign: "center",
-            color: colorScheme ? "white" : "black",
-          }}
-        >
-          Chat With Gemini
-        </Text>
-      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS == "android" ? undefined : "padding"}
         keyboardVerticalOffset={Platform.OS == "ios" ? 60 : 0}
         style={{ flex: 1 }}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, }}>
             <FlatList<Message>
               data={Messages}
               ref={flatListRef}
@@ -130,17 +119,19 @@ export default function ChatScreen() {
               contentContainerStyle={{
                 flexGrow: 1,
                 justifyContent: "flex-end",
-                padding: 5,
+                padding: 2,
+                
               }}
               renderItem={({ item }) => (
                 <TouchableWithoutFeedback onPress={() => {}}>
                   <View
                     style={{
                       borderWidth: 1,
+                      
                       borderRadius: 20,
                       padding: 15,
                       maxWidth: "80%",
-                      margin: 5,
+                      margin: 2,
                       backgroundColor: colorScheme ? "#333333" : "lightgray",
                       borderColor: colorScheme ? "#333333" : "lightgray",
                       alignSelf:

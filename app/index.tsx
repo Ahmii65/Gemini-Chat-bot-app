@@ -3,6 +3,10 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, StatusBar, Text, TouchableOpacity, View } from "react-native";
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const index = () => {
@@ -12,9 +16,9 @@ const index = () => {
   return (
     <SafeAreaView
       style={{
-        flex: 1,
         backgroundColor: colorScheme ? "black" : "white",
-        elevation: 15,
+        height: hp(100),
+        flex: 1,
       }}
     >
       <StatusBar
@@ -24,12 +28,12 @@ const index = () => {
       <View
         style={{
           alignItems: "center",
-          marginTop: 80,
-          flex: 0.2,
+          marginTop: hp(10),
           justifyContent: "center",
+          height: hp(15),
         }}
       >
-        <Text style={{ color: "#3369FF", fontWeight: "600", fontSize: 25 }}>
+        <Text style={{ color: "#3369FF", fontWeight: "600", fontSize: hp(3) }}>
           Your AI Assistant
         </Text>
         <Text
@@ -37,8 +41,8 @@ const index = () => {
             flexWrap: "wrap",
             width: 270,
             textAlign: "center",
-            marginTop: "5%",
-            fontSize: 15,
+            marginTop: hp(2),
+            fontSize: hp(2),
             color: "gray",
           }}
         >
@@ -46,7 +50,13 @@ const index = () => {
           Using Artificial Intelligence Assistant
         </Text>
       </View>
-      <View style={{ alignItems: "center", marginTop: 80, flex: 0.8 }}>
+      <View
+        style={{
+          alignItems: "center",
+          marginTop: hp(5),
+          height: hp(45),
+        }}
+      >
         <Image
           source={require("../assets/images/MainScreenLogo.png")}
           resizeMode="cover"
@@ -55,8 +65,9 @@ const index = () => {
       <View
         style={{
           alignItems: "center",
-          flex: 0.3,
-          marginTop: 6,
+          height: hp(15),
+          flex: 1,
+          marginTop: hp(5),
           justifyContent: "center",
         }}
       >
@@ -67,7 +78,7 @@ const index = () => {
             padding: 15,
             backgroundColor: "#3369FF",
             borderColor: "#3369FF",
-            width: "90%",
+            width: wp(90),
           }}
           onPress={() => route.push("/Chat")}
         >
